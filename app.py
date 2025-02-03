@@ -71,11 +71,11 @@ def calculate_percentages(labeled_words):
     return hindi_percentage, marathi_percentage
 
 # Streamlit app UI
-st.title("Word-Wise Classification of Hindi, Marathi, and English Words")
-st.write("Enter a sentence containing Hindi, Marathi, and English words (both Romanized and Native forms)")
+st.title("Word-Wise Classification of Hindi, Marathi Sentences")
+st.write("Enter a sentence containing Hindi, Marathi words (both Romanized and Native forms)")
 
 # Input sentence from the user
-sentence = st.text_area("Input Sentence", "Aaj office nahi jau शकत कारण मी busy आहे")
+sentence = st.text_area("Input Sentence")
 
 # Button to classify the sentence
 if st.button("Classify"):
