@@ -89,5 +89,14 @@ if st.button("Classify"):
         hindi_percentage, marathi_percentage = calculate_percentages(result)
         st.write(f"**Hindi:** {hindi_percentage:.2f}%")
         st.write(f"**Marathi:** {marathi_percentage:.2f}%")
+
+        # Conclusion based on the percentage of Hindi and Marathi words
+        if marathi_percentage > hindi_percentage:
+            st.write("**Conclusion:** This is a Marathi Sentence.")
+        elif hindi_percentage > marathi_percentage:
+            st.write("**Conclusion:** This is a Hindi Sentence.")
+        else:
+            st.write("**Conclusion:** The sentence has an equal mix of Hindi and Marathi.")
+
     else:
         st.write("Please enter a sentence to classify.")
