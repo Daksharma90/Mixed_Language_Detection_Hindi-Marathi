@@ -8,6 +8,9 @@ Models used:
 
 One model is for romanized and other one is for native and I have combined both models to get best results for mixed hindi marathi sentences whether written in romanized form or Native form.
 
-You can use the code.py to test the model or visit the live app on streamlit:
+You can use the code.py to test the model 
+
+or 
+# Visit the live app on streamlit:
 
 https://mixedlanguagedetectionhindi-marathi-wzgid7rcsbyloxag6vvozv.streamlit.app
