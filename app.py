@@ -1,7 +1,6 @@
 import streamlit as st
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
-from torch.nn.functional import softmax
 import re
 
 # Load the models and tokenizers from Hugging Face using st.cache_resource
@@ -34,44 +33,55 @@ romanized_label_map_inv = {0: "H", 1: "M"}  # Hindi, Marathi for Romanized scrip
 def is_devanagari(word):
     return bool(re.search(r'[\u0900-\u097F]', word))  # Unicode range for Devanagari
 
-# Function to predict language for a single word
-def predict_language(word, is_native):
-    tokenizer = native_tokenizer if is_native else romanized_tokenizer
-    model = native_model if is_native else romanized_model
-
-    inputs = tokenizer(word, return_tensors="pt", truncation=True, padding="max_length", max_length=32).to(device)
-    outputs = model(**inputs)
-    logits = outputs.logits
-    probabilities = softmax(logits, dim=1)
-    predicted_class = torch.argmax(probabilities, dim=1).item()
-
-    label_map = native_label_map_inv if is_native else romanized_label_map_inv
-    return label_map[predicted_class]
-
 # Function to classify a sentence word-wise using both models
 def classify_sentence(sentence):
     words = sentence.split()
-    predictions = []
-
+    marathi_count, hindi_count = 0, 0
+    
     for word in words:
-        is_native = is_devanagari(word)  # Check if the word is native or romanized
-        word = word.capitalize() if not is_native else word  # Capitalize first letter if romanized
-        label = predict_language(word, is_native)
-        predictions.append((word, label))
-
-    return predictions
-
-# Calculate percentage of Hindi and Marathi words
-def calculate_percentages(labeled_words):
-    total_words = len(labeled_words)
-    hindi_count = sum(1 for _, label in labeled_words if label == 'H')
-    marathi_count = total_words - hindi_count
-    hindi_percentage = (hindi_count / total_words) * 100 if total_words > 0 else 0
-    marathi_percentage = (marathi_count / total_words) * 100 if total_words > 0 else 0
-    return hindi_percentage, marathi_percentage
+        if is_devanagari(word):
+            # Classify using Native Model
+            inputs = native_tokenizer(word, return_tensors="pt", truncation=True, padding="max_length", max_length=32).to(device)
+            outputs = native_model(**inputs)
+            predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+            label = native_label_map_inv[predicted_class]
+        else:
+            # Capitalize first letter for Romanized words
+            formatted_word = word.capitalize()
+            
+            # Classify using Romanized Model
+            inputs = romanized_tokenizer(formatted_word, return_tensors="pt", truncation=True, padding="max_length", max_length=32).to(device)
+            outputs = romanized_model(**inputs)
+            predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+            label = romanized_label_map_inv[predicted_class]
+        
+        # Count occurrences
+        if label == "M":
+            marathi_count += 1
+        elif label == "H":
+            hindi_count += 1
+    
+    # Sentence classification based on thresholds
+    total_words = len(words)
+    if total_words <= 4:
+        sentence_label = "Marathi" if marathi_count >= 1 else "Hindi"
+    elif total_words <= 6:
+        sentence_label = "Marathi" if marathi_count >= 2 else "Hindi"
+    elif total_words <= 8:
+        sentence_label = "Marathi" if marathi_count >= 3 else "Hindi"
+    elif total_words <= 10:
+        sentence_label = "Marathi" if marathi_count >= 4 else "Hindi"
+    elif total_words <= 15:
+        sentence_label = "Marathi" if (marathi_count / total_words) >= 0.35 else "Hindi"
+    elif total_words <= 20:
+        sentence_label = "Marathi" if (marathi_count / total_words) >= 0.30 else "Hindi"
+    else:
+        sentence_label = "Marathi" if (marathi_count / total_words) >= 0.30 else "Hindi"
+    
+    return sentence_label
 
 # Streamlit app UI
-st.title("Word-Wise Classification of Hindi, Marathi Sentences")
+st.title("Sentence Language Classifier: Hindi or Marathi")
 st.write("Enter a sentence containing Hindi, Marathi words (both Romanized and Native forms)")
 
 # Input sentence from the user
@@ -80,23 +90,7 @@ sentence = st.text_area("Input Sentence")
 # Button to classify the sentence
 if st.button("Classify"):
     if sentence:
-        result = classify_sentence(sentence)
-        st.write("**Classification Results**:")
-        for word, label in result:
-            st.write(f"Word: {word}, Label: {label}")
-
-        st.subheader("Language Percentages:")
-        hindi_percentage, marathi_percentage = calculate_percentages(result)
-        st.write(f"**Hindi:** {hindi_percentage:.2f}%")
-        st.write(f"**Marathi:** {marathi_percentage:.2f}%")
-
-        # Conclusion based on the percentage of Hindi and Marathi words
-        if marathi_percentage > hindi_percentage:
-            st.write("**Conclusion:** This is a Marathi Sentence.")
-        elif hindi_percentage > marathi_percentage:
-            st.write("**Conclusion:** This is a Hindi Sentence.")
-        else:
-            st.write("**Conclusion:** The sentence has an equal mix of Hindi and Marathi.")
-
+        sentence_language = classify_sentence(sentence)
+        st.write(f"**Prediction:** This is a {sentence_language} sentence.")
     else:
         st.write("Please enter a sentence to classify.")
