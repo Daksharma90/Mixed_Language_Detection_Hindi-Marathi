@@ -49,7 +49,6 @@ def predict_with_variations(word, model, tokenizer):
 # Function to classify a sentence word-wise using both models
 def classify_sentence(sentence):
     words = sentence.split()
-    predictions = []
     marathi_count, hindi_count, english_count = 0, 0, 0
 
     for word in words:
@@ -69,8 +68,6 @@ def classify_sentence(sentence):
             # Apply correction dictionary if the word is in it
             label = correction_dict.get(formatted_word, label)
 
-        predictions.append((word, label))
-
         # Count occurrences
         if label == "M":
             marathi_count += 1
@@ -82,15 +79,15 @@ def classify_sentence(sentence):
     # Total words in the sentence
     total_words = len(words)
 
-    # Improved Sentence Classification Logic
+    # Sentence Classification Logic
     if total_words < 5:
-        sentence_label = "M" if marathi_count > 0 else "H"
+        sentence_label = "Marathi" if marathi_count > 0 else "Hindi"
     else:
         ratio = marathi_count / total_words
         if ratio > 0.40:
-            sentence_label = "M"
+            sentence_label = "Marathi"
         elif ratio < 0.25:
-            sentence_label = "H"
+            sentence_label = "Hindi"
         else:
             sentence_label = "Mixed"
 
@@ -98,7 +95,7 @@ def classify_sentence(sentence):
     hindi_percentage = round((hindi_count / total_words) * 100, 2) if sentence_label == "Mixed" else None
     marathi_percentage = round((marathi_count / total_words) * 100, 2) if sentence_label == "Mixed" else None
 
-    return predictions, sentence_label, hindi_percentage, marathi_percentage
+    return sentence_label, hindi_percentage, marathi_percentage
 
 # Streamlit App Setup
 st.title("Sentence Language Classifier")
@@ -109,17 +106,11 @@ sentence_input = st.text_input("Enter sentence:")
 
 if sentence_input:
     # Classify the sentence
-    word_predictions, sentence_language, hindi_percent, marathi_percent = classify_sentence(sentence_input)
+    sentence_language, hindi_percent, marathi_percent = classify_sentence(sentence_input)
 
-    # Display word predictions
-    st.subheader("Word-wise Predictions:")
-    for word, label in word_predictions:
-        st.write(f"Word: {word}, Predicted Label: {label}")
-
-    # Display overall sentence language prediction
-    st.subheader("Sentence Language Prediction:")
-    st.write(f"Predicted Sentence Language: {sentence_language}")
-
-    # If mixed, display the percentages
+    # Display sentence language prediction
     if sentence_language == "Mixed":
+        st.write(f"This is a Mixed Sentence.")
         st.write(f"Hindi words: {hindi_percent}%, Marathi words: {marathi_percent}%")
+    else:
+        st.write(f"This is a {sentence_language} Sentence.")
