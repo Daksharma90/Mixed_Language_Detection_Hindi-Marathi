@@ -26,7 +26,8 @@ romanized_label_map_inv = {0: "H", 1: "M"}  # Hindi, Marathi for Romanized scrip
 correction_dict = {
     "majha": "M", "konti": "M", "boltoy": "M", "samajla": "M", "aajun": "M", 
     "shabda": "M", "aata": "M", "karaychay": "M", "zato": "M", "zate": "M", "alo": "M", "aalo": "M",
-    "hotil": "M", "tumhara": "H", "tera": "H", "mahit": "M", "tumhe": "H", "tumhare": "H"
+    "hotil": "M", "tumhara": "H", "tera": "H", "mahit": "M", "tumhe": "H", "tumhare": "H", "fakta": "M",
+    "itka": "M", "kara": "M", "tar": "M", "hoil": "M"
 }
 
 # Function to check if a word is in Devanagari script
