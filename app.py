@@ -29,7 +29,8 @@ correction_dict = {
     "hotil": "M", "tumhara": "H", "tera": "H", "mahit": "M", "tumhe": "H", "tumhare": "H", "fakta": "M",
     "itka": "M", "kara": "M", "tar": "M", "hoil": "M", "jevan": "M", "kasa": "M", "ho": "M", "tula": "M",
     "kesa": "M", "anghol": "M", "zop": "M", "nusta": "M", "kiti": "M", "dada": "M", "thev": "M", "sampala": "M",
-    "aga": "M", "nako": "M", "naku":"M", "bhari": "M", "gheto": "M", "atta": "M"
+    "aga": "M", "nako": "M", "naku":"M", "bhari": "M", "gheto": "M", "atta": "M", "ka": "M", "baso": "M", "honar": "M",
+    "bagh": "M", "fakt": "M"
 }
 
 # Function to check if a word is in Devanagari script
