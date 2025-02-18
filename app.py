@@ -27,6 +27,7 @@ correction_dict = {
     "majha": "M", "konti": "M", "boltoy": "M", "samajla": "M", "aajun": "M", 
     "shabda": "M", "aata": "M", "karaychay": "M", "zato": "M", "zate": "M", "alo": "M", "aalo": "M",
     "hotil": "M", "tumhara": "H", "tera": "H", "mahit": "M", "tumhe": "H", "tumhare": "H", "fakta": "M",
+    "itka": "M", "kara": "M", "tar": "M", "hoil": "M", "jevan": "M", "kasa": "M"
     "itka": "M", "kara": "M", "tar": "M", "hoil": "M", "jevan": "M", "kasa": "M", "ho": "M", "tula": "M",
     "kesa": "M", "anghol": "M", "zop": "M", "nusta": "M", "kiti": "M", "dada": "M", "thev": "M", "sampala": "M",
     "aga": "M", "nako": "M", "naku":"M", "bhari": "M", "gheto": "M", "atta": "M"
