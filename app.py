@@ -3,22 +3,15 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 import re
 
-# Load the models and tokenizers from Hugging Face using st.cache_resource
-@st.cache_resource
-def load_models():
-    native_model_name = "GautamDaksh/Native_Marathi_Hindi_English_classifier"
-    romanized_model_name = "GautamDaksh/Hindi-Marathi_Classifier"
+# Load the models and tokenizers from Hugging Face
+native_model_name = "GautamDaksh/Native_Marathi_Hindi_English_classifier"
+romanized_model_name = "GautamDaksh/Hindi-Marathi_Classifier"
 
-    native_tokenizer = AutoTokenizer.from_pretrained(native_model_name)
-    native_model = AutoModelForSequenceClassification.from_pretrained(native_model_name)
+native_tokenizer = AutoTokenizer.from_pretrained(native_model_name)
+native_model = AutoModelForSequenceClassification.from_pretrained(native_model_name)
 
-    romanized_tokenizer = AutoTokenizer.from_pretrained(romanized_model_name)
-    romanized_model = AutoModelForSequenceClassification.from_pretrained(romanized_model_name)
-
-    return native_tokenizer, native_model, romanized_tokenizer, romanized_model
-
-# Load both models
-native_tokenizer, native_model, romanized_tokenizer, romanized_model = load_models()
+romanized_tokenizer = AutoTokenizer.from_pretrained(romanized_model_name)
+romanized_model = AutoModelForSequenceClassification.from_pretrained(romanized_model_name)
 
 # Move models to GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -31,7 +24,6 @@ romanized_label_map_inv = {0: "H", 1: "M"}  # Hindi, Marathi for Romanized scrip
 
 # Correction dictionary with only lowercase keys
 correction_dict = {
-   # Marathi Words
     "majha": "M", "konti": "M", "boltoy": "M", "samajla": "M", "aajun": "M", 
     "shabda": "M", "aata": "M", "karaychay": "M", "zato": "M", "zate": "M", "alo": "M", "aalo": "M",
     "hotil": "M"
@@ -58,8 +50,8 @@ def predict_with_variations(word, model, tokenizer):
 def classify_sentence(sentence):
     words = sentence.split()
     predictions = []
-    marathi_count, hindi_count = 0, 0
-    
+    marathi_count, hindi_count, english_count = 0, 0, 0
+
     for word in words:
         if is_devanagari(word):
             # Classify using Native Model
@@ -84,7 +76,9 @@ def classify_sentence(sentence):
             marathi_count += 1
         elif label == "H":
             hindi_count += 1
-    
+        else:
+            english_count += 1
+
     # Total words in the sentence
     total_words = len(words)
 
@@ -106,24 +100,26 @@ def classify_sentence(sentence):
 
     return predictions, sentence_label, hindi_percentage, marathi_percentage
 
-# Streamlit app UI
-st.title("Sentence Language Classifier: Hindi or Marathi")
-st.write("Enter a sentence containing Hindi, Marathi words (both Romanized and Native forms)")
+# Streamlit App Setup
+st.title("Sentence Language Classifier")
+st.write("Enter a sentence in Romanized or native Hindi/Marathi/English")
 
-# Input sentence from the user
-sentence = st.text_area("Input Sentence")
+# Text input for the user
+sentence_input = st.text_input("Enter sentence:")
 
-# Button to classify the sentence
-if st.button("Classify"):
-    if sentence:
-        word_predictions, sentence_language, hindi_percent, marathi_percent = classify_sentence(sentence)
-        st.write(f"**Prediction:** This is a {sentence_language} sentence.")
-        
-        if sentence_language == "Mixed":
-            st.write(f"Hindi words: {hindi_percent}%, Marathi words: {marathi_percent}%")
-        
-        st.write("**Word-wise predictions:**")
-        for word, label in word_predictions:
-            st.write(f"Word: '{word}', Predicted Label: {label}")
-    else:
-        st.write("Please enter a sentence to classify.")
+if sentence_input:
+    # Classify the sentence
+    word_predictions, sentence_language, hindi_percent, marathi_percent = classify_sentence(sentence_input)
+
+    # Display word predictions
+    st.subheader("Word-wise Predictions:")
+    for word, label in word_predictions:
+        st.write(f"Word: {word}, Predicted Label: {label}")
+
+    # Display overall sentence language prediction
+    st.subheader("Sentence Language Prediction:")
+    st.write(f"Predicted Sentence Language: {sentence_language}")
+
+    # If mixed, display the percentages
+    if sentence_language == "Mixed":
+        st.write(f"Hindi words: {hindi_percent}%, Marathi words: {marathi_percent}%")
