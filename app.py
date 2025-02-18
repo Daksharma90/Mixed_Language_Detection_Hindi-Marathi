@@ -53,6 +53,7 @@ def predict_with_variations(word, model, tokenizer):
 # Function to classify a sentence word-wise using both models
 def classify_sentence(sentence):
     words = sentence.split()
+    predictions = []
     marathi_count, hindi_count, english_count = 0, 0, 0
 
     for word in words:
@@ -71,6 +72,8 @@ def classify_sentence(sentence):
 
             # Apply correction dictionary if the word is in it
             label = correction_dict.get(formatted_word, label)
+
+        predictions.append((word, label))
 
         # Count occurrences
         if label == "M":
@@ -99,22 +102,28 @@ def classify_sentence(sentence):
     hindi_percentage = round((hindi_count / total_words) * 100, 2) if sentence_label == "Mixed" else None
     marathi_percentage = round((marathi_count / total_words) * 100, 2) if sentence_label == "Mixed" else None
 
-    return sentence_label, hindi_percentage, marathi_percentage
+    return sentence_label, hindi_percentage, marathi_percentage, predictions
 
 # Streamlit App Setup
 st.title("Sentence Language Classifier")
-st.write("Enter a sentence in Romanized or native Hindi,Marathi or mixed of both")
+st.write("Enter a sentence in Romanized or native Hindi, Marathi or mixed of both")
 
 # Text input for the user
 sentence_input = st.text_input("Enter sentence:")
 
 if sentence_input:
     # Classify the sentence
-    sentence_language, hindi_percent, marathi_percent = classify_sentence(sentence_input)
+    sentence_language, hindi_percent, marathi_percent, word_predictions = classify_sentence(sentence_input)
 
     # Display sentence language prediction
     if sentence_language == "Mixed":
-        st.write(f"This is a Mixed Sentence.")
+        st.write("This is a Mixed Sentence.")
         st.write(f"Hindi words: {hindi_percent}%, Marathi words: {marathi_percent}%")
+        
+        # Button to reveal word-wise predictions
+        if st.button("Show Word-level Classification"):
+            st.subheader("Word-wise Predictions:")
+            for word, label in word_predictions:
+                st.write(f"{word}: {label}")
     else:
         st.write(f"This is a {sentence_language} Sentence.")
