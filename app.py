@@ -99,7 +99,7 @@ def classify_sentence(sentence):
 
 # Streamlit App Setup
 st.title("Sentence Language Classifier")
-st.write("Enter a sentence in Romanized or native Hindi/Marathi/English")
+st.write("Enter a sentence in Romanized or native Hindi,Marathi or mixed of both")
 
 # Text input for the user
 sentence_input = st.text_input("Enter sentence:")
