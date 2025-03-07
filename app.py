@@ -107,6 +107,8 @@ def classify_sentence(sentence):
 # Streamlit App Setup
 st.title("Sentence Language Classifier")
 st.write("Enter a sentence in Romanized or native Hindi, Marathi or mixed of both")
+st.write("Example Sentences- Mala chaha de, Mera naam daksh hai, ते पुस्तक मला दे, मी उद्या तुला वापस करेल")
+st.write("You can use mixing of Native and Romanized forms too like Mera नाम Daksh hai, आपण कोण?")
 
 # Text input for the user
 sentence_input = st.text_input("Enter sentence:")
